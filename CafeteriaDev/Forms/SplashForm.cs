@@ -6,6 +6,8 @@ namespace CafeteriaDev.Forms;
 
 public sealed class SplashForm : Form
 {
+    private readonly System.Windows.Forms.Timer _loadingTimer =
+        new() { Interval = 1600 };
 
     public SplashForm()
     {
@@ -21,13 +23,23 @@ public sealed class SplashForm : Form
         subtitle.ForeColor = Color.FromArgb(184, 210, 207);
         subtitle.Location = new Point(217, 146);
 
-        var continueButton = UiTheme.CreatePrimaryButton("Entrar");
-        continueButton.Location = new Point(225, 222);
-        continueButton.Click += (_, _) => Close();
+        var status = UiTheme.CreateLabel("Carregando o sistema...", 11F);
+        status.ForeColor = Color.White;
+        status.Location = new Point(225, 240);
+
+        Shown += (_, _) => _loadingTimer.Start();
+        _loadingTimer.Tick += (_, _) => FinishLoading();
+        FormClosed += (_, _) => _loadingTimer.Dispose();
 
         Controls.Add(title);
         Controls.Add(subtitle);
-        Controls.Add(continueButton);
+        Controls.Add(status);
+    }
+
+    private void FinishLoading()
+    {
+        _loadingTimer.Stop();
+        Close();
     }
 
 }

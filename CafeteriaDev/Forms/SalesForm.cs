@@ -62,8 +62,11 @@ public sealed class SalesForm : Form
         closeButton.Size = new Size(210, 57);
         closeButton.Click += (_, _) => Close();
 
-        // Business events are connected in the next feature commit.
+        _coffeeCombo.SelectedIndexChanged += (_, _) => UpdateTotal();
+        _quantityInput.ValueChanged += (_, _) => UpdateTotal();
+        _saveButton.Click += (_, _) => SaveSale();
         _saveButton.Enabled = false;
+        UpdateTotal();
 
         Controls.Add(title);
         Controls.Add(subtitle);
@@ -75,6 +78,47 @@ public sealed class SalesForm : Form
         Controls.Add(_saveButton);
         Controls.Add(closeButton);
 
+    }
+
+    private void UpdateTotal()
+    {
+        if (_coffeeCombo.SelectedItem is not CoffeeProduct coffee)
+        {
+            _saveButton.Enabled = false;
+            _totalLabel.Text = "Total: R$ 0,00";
+            return;
+        }
+
+        var total = coffee.Price * _quantityInput.Value;
+        _totalLabel.Text = $"Total: {total.ToString("C", BrazilianCulture)}";
+        _saveButton.Enabled = true;
+    }
+
+    private void SaveSale()
+    {
+        if (_coffeeCombo.SelectedItem is not CoffeeProduct coffee)
+        {
+            MessageBox.Show(this, "Selecione um café.", "Atenção",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var sale = new Sale(
+            Guid.NewGuid(),
+            DateTime.Now,
+            coffee.Name,
+            coffee.Price,
+            (int)_quantityInput.Value);
+
+        _repository.Add(sale);
+
+        MessageBox.Show(this,
+            $"Pedido registrado com sucesso!\nTotal: {sale.Total.ToString("C", BrazilianCulture)}",
+            "Venda realizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        _coffeeCombo.SelectedIndex = -1;
+        _quantityInput.Value = 1;
+        UpdateTotal();
     }
 
 }

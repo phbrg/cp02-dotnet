@@ -15,6 +15,7 @@ public sealed class SalesReportForm : Form
     private readonly DataGridView _salesGrid = new();
     private readonly Label _countLabel = new();
     private readonly Label _revenueLabel = new();
+    private readonly TextBox _searchInput = new();
 
     public SalesReportForm(SalesRepository repository)
     {
@@ -65,6 +66,14 @@ public sealed class SalesReportForm : Form
         closeButton.Size = new Size(125, 46);
         closeButton.Click += (_, _) => Close();
 
+        var searchLabel = UiTheme.CreateLabel("Buscar café:", 10F, bold: true);
+        searchLabel.Location = new Point(38, 124);
+
+        _searchInput.Location = new Point(151, 118);
+        _searchInput.Size = new Size(315, 32);
+        _searchInput.PlaceholderText = "Digite o nome do café";
+        _searchInput.TextChanged += (_, _) => LoadSales();
+
         refreshButton.Click += (_, _) => LoadSales();
         LoadSales();
 
@@ -75,12 +84,16 @@ public sealed class SalesReportForm : Form
         Controls.Add(_revenueLabel);
         Controls.Add(refreshButton);
         Controls.Add(closeButton);
-
+        Controls.Add(searchLabel);
+        Controls.Add(_searchInput);
     }
 
     private void LoadSales()
     {
+        var searchText = _searchInput.Text.Trim();
         var sales = _repository.GetAll()
+            .Where(sale => string.IsNullOrEmpty(searchText) ||
+                sale.CoffeeName.Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
             .OrderByDescending(sale => sale.CreatedAt)
             .ToList();
 
@@ -96,9 +109,9 @@ public sealed class SalesReportForm : Form
                 sale.Total.ToString("C", BrazilianCulture));
         }
 
-        _countLabel.Text = $"Pedidos: {sales.Count}";
+        _countLabel.Text = $"Pedidos exibidos: {sales.Count}";
         _revenueLabel.Text =
-            $"Faturamento: {sales.Sum(sale => sale.Total).ToString("C", BrazilianCulture)}";
+            $"Faturamento exibido: {sales.Sum(sale => sale.Total).ToString("C", BrazilianCulture)}";
     }
 
 }

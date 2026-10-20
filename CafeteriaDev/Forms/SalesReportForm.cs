@@ -65,8 +65,8 @@ public sealed class SalesReportForm : Form
         closeButton.Size = new Size(125, 46);
         closeButton.Click += (_, _) => Close();
 
-        // Data loading is implemented in the next feature commit.
-        refreshButton.Enabled = false;
+        refreshButton.Click += (_, _) => LoadSales();
+        LoadSales();
 
         Controls.Add(title);
         Controls.Add(subtitle);
@@ -76,6 +76,29 @@ public sealed class SalesReportForm : Form
         Controls.Add(refreshButton);
         Controls.Add(closeButton);
 
+    }
+
+    private void LoadSales()
+    {
+        var sales = _repository.GetAll()
+            .OrderByDescending(sale => sale.CreatedAt)
+            .ToList();
+
+        _salesGrid.Rows.Clear();
+
+        foreach (var sale in sales)
+        {
+            _salesGrid.Rows.Add(
+                sale.CreatedAt.ToString("dd/MM/yyyy HH:mm"),
+                sale.CoffeeName,
+                sale.Quantity,
+                sale.UnitPrice.ToString("C", BrazilianCulture),
+                sale.Total.ToString("C", BrazilianCulture));
+        }
+
+        _countLabel.Text = $"Pedidos: {sales.Count}";
+        _revenueLabel.Text =
+            $"Faturamento: {sales.Sum(sale => sale.Total).ToString("C", BrazilianCulture)}";
     }
 
 }

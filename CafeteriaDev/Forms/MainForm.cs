@@ -14,6 +14,7 @@ public sealed class MainForm : Form
     private readonly SalesRepository _repository;
     private readonly Button _salesButton;
     private readonly Button _reportButton;
+    private readonly Label _summaryLabel;
 
     public MainForm(SalesRepository repository)
     {
@@ -38,11 +39,24 @@ public sealed class MainForm : Form
         _salesButton.Click += (_, _) => OpenSales();
         _reportButton.Click += (_, _) => OpenReport();
 
+        _summaryLabel = UiTheme.CreateLabel(string.Empty, 11F);
+        _summaryLabel.ForeColor = UiTheme.Muted;
+        _summaryLabel.Location = new Point(48, 306);
+
+        var exitButton = UiTheme.CreateSecondaryButton("Sair do sistema");
+        exitButton.Location = new Point(48, 369);
+        exitButton.Size = new Size(180, 42);
+        exitButton.Click += (_, _) => Close();
+
+        Activated += (_, _) => UpdateSummary();
+        UpdateSummary();
+
         Controls.Add(title);
         Controls.Add(subtitle);
         Controls.Add(_salesButton);
         Controls.Add(_reportButton);
-
+        Controls.Add(_summaryLabel);
+        Controls.Add(exitButton);
     }
 
     private void OpenSales()
@@ -50,6 +64,7 @@ public sealed class MainForm : Form
         using var salesForm = new SalesForm(_repository);
         salesForm.StartPosition = FormStartPosition.CenterParent;
         salesForm.ShowDialog(this);
+        UpdateSummary();
     }
 
     private void OpenReport()
@@ -57,6 +72,14 @@ public sealed class MainForm : Form
         using var reportForm = new SalesReportForm(_repository);
         reportForm.StartPosition = FormStartPosition.CenterParent;
         reportForm.ShowDialog(this);
+    }
+
+    private void UpdateSummary()
+    {
+        var sales = _repository.GetAll();
+        var revenue = sales.Sum(sale => sale.Total);
+        _summaryLabel.Text =
+            $"Pedidos registrados: {sales.Count}   |   Faturamento: {revenue.ToString("C", BrazilianCulture)}";
     }
 
 }

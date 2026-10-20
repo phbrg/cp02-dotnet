@@ -7,7 +7,9 @@ namespace CafeteriaDev.Forms;
 public sealed class SplashForm : Form
 {
     private readonly System.Windows.Forms.Timer _loadingTimer =
-        new() { Interval = 1600 };
+        new() { Interval = 120 };
+    private readonly ProgressBar _progressBar = new();
+    private readonly Label _statusLabel = new();
 
     public SplashForm()
     {
@@ -23,23 +25,37 @@ public sealed class SplashForm : Form
         subtitle.ForeColor = Color.FromArgb(184, 210, 207);
         subtitle.Location = new Point(217, 146);
 
-        var status = UiTheme.CreateLabel("Carregando o sistema...", 11F);
-        status.ForeColor = Color.White;
-        status.Location = new Point(225, 240);
+        _progressBar.Location = new Point(150, 221);
+        _progressBar.Size = new Size(340, 14);
+        _progressBar.Minimum = 0;
+        _progressBar.Maximum = 100;
+        _progressBar.Style = ProgressBarStyle.Continuous;
+
+        _statusLabel.AutoSize = true;
+        _statusLabel.Text = "Preparando o sistema... 0%";
+        _statusLabel.ForeColor = Color.White;
+        _statusLabel.Location = new Point(226, 254);
 
         Shown += (_, _) => _loadingTimer.Start();
-        _loadingTimer.Tick += (_, _) => FinishLoading();
+        _loadingTimer.Tick += (_, _) => UpdateProgress();
         FormClosed += (_, _) => _loadingTimer.Dispose();
 
         Controls.Add(title);
         Controls.Add(subtitle);
-        Controls.Add(status);
+        Controls.Add(_progressBar);
+        Controls.Add(_statusLabel);
     }
 
-    private void FinishLoading()
+    private void UpdateProgress()
     {
-        _loadingTimer.Stop();
-        Close();
+        _progressBar.Value = Math.Min(_progressBar.Value + 10, 100);
+        _statusLabel.Text = $"Preparando o sistema... {_progressBar.Value}%";
+
+        if (_progressBar.Value == 100)
+        {
+            _loadingTimer.Stop();
+            Close();
+        }
     }
 
 }

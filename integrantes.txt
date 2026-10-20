@@ -1,8 +1,8 @@
 INTEGRANTES - CAFETERIA DEV
 
-1. Nome: PREENCHER | RM: PREENCHER (Tech Lead)
-2. Nome: PREENCHER | RM: PREENCHER
-3. Nome: PREENCHER | RM: PREENCHER
-4. Nome: PREENCHER | RM: PREENCHER
+1. Ana Luiza Santana da Rocha RM: 561194
+2. Evandro Yuji Kaibara de Oliveira RM: 559274
+3. Marcos Vinícius Gonçalves Santos RM: 560062
+4. Pedro Henrique Batista Bergamin RM: 559443
 
-Repositorio publico: https://github.com/ORGANIZACAO/REPOSITORIO
+Repositorio publico: https://github.com/phbrg/cp02-dotnet

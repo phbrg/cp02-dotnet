@@ -35,15 +35,28 @@ public sealed class MainForm : Form
         _reportButton.Location = new Point(405, 178);
         _reportButton.Size = new Size(306, 75);
 
-        // Navigation becomes available in the next feature commit.
-        _salesButton.Enabled = false;
-        _reportButton.Enabled = false;
+        _salesButton.Click += (_, _) => OpenSales();
+        _reportButton.Click += (_, _) => OpenReport();
 
         Controls.Add(title);
         Controls.Add(subtitle);
         Controls.Add(_salesButton);
         Controls.Add(_reportButton);
 
+    }
+
+    private void OpenSales()
+    {
+        using var salesForm = new SalesForm(_repository);
+        salesForm.StartPosition = FormStartPosition.CenterParent;
+        salesForm.ShowDialog(this);
+    }
+
+    private void OpenReport()
+    {
+        using var reportForm = new SalesReportForm(_repository);
+        reportForm.StartPosition = FormStartPosition.CenterParent;
+        reportForm.ShowDialog(this);
     }
 
 }

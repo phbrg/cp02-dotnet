@@ -15,6 +15,7 @@ public sealed class SalesForm : Form
     private readonly NumericUpDown _quantityInput = new();
     private readonly Label _totalLabel = new();
     private readonly Button _saveButton;
+    private readonly Label _helperLabel = new();
 
     public SalesForm(SalesRepository repository)
     {
@@ -62,10 +63,21 @@ public sealed class SalesForm : Form
         closeButton.Size = new Size(210, 57);
         closeButton.Click += (_, _) => Close();
 
+        _helperLabel.AutoSize = true;
+        _helperLabel.Text = "Escolha um café para calcular o valor.";
+        _helperLabel.ForeColor = UiTheme.Muted;
+        _helperLabel.Location = new Point(44, 250);
+
+        var clearButton = UiTheme.CreateSecondaryButton("Limpar");
+        clearButton.Location = new Point(570, 392);
+        clearButton.Size = new Size(145, 57);
+        clearButton.Click += (_, _) => ResetForm();
+
         _coffeeCombo.SelectedIndexChanged += (_, _) => UpdateTotal();
         _quantityInput.ValueChanged += (_, _) => UpdateTotal();
         _saveButton.Click += (_, _) => SaveSale();
         _saveButton.Enabled = false;
+        AcceptButton = _saveButton;
         UpdateTotal();
 
         Controls.Add(title);
@@ -77,7 +89,8 @@ public sealed class SalesForm : Form
         Controls.Add(_totalLabel);
         Controls.Add(_saveButton);
         Controls.Add(closeButton);
-
+        Controls.Add(_helperLabel);
+        Controls.Add(clearButton);
     }
 
     private void UpdateTotal()
@@ -86,11 +99,13 @@ public sealed class SalesForm : Form
         {
             _saveButton.Enabled = false;
             _totalLabel.Text = "Total: R$ 0,00";
+            _helperLabel.Text = "Escolha um café para calcular o valor.";
             return;
         }
 
         var total = coffee.Price * _quantityInput.Value;
         _totalLabel.Text = $"Total: {total.ToString("C", BrazilianCulture)}";
+        _helperLabel.Text = $"Preço unitário: {coffee.Price.ToString("C", BrazilianCulture)}";
         _saveButton.Enabled = true;
     }
 
@@ -116,9 +131,15 @@ public sealed class SalesForm : Form
             $"Pedido registrado com sucesso!\nTotal: {sale.Total.ToString("C", BrazilianCulture)}",
             "Venda realizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+        ResetForm();
+    }
+
+    private void ResetForm()
+    {
         _coffeeCombo.SelectedIndex = -1;
         _quantityInput.Value = 1;
         UpdateTotal();
+        _coffeeCombo.Focus();
     }
 
 }
